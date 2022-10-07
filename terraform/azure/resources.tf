@@ -60,17 +60,28 @@ module "CVADs" {
   depends_on = [azurerm_virtual_network.AzurevNet]
 }
 
-module "AVD" {
-  count    = local.delivery_solutions[var.delivery] == "avd" ? 1 : 0
-  source = "./delivery/avd"
+# module "AVD" {
+#   count    = local.delivery_solutions[var.delivery] == "avd" ? 1 : 0
+#   source = "./delivery/avd"
 
-  location              = var.azure_region
+#   location              = var.azure_region
 
-  deployment_name       = local.deploymentname
-  workspace             = local.environment_abbreviations[terraform.workspace]
+#   deployment_name       = local.deploymentname
+#   workspace             = local.environment_abbreviations[terraform.workspace]
 
-  depends_on = [azurerm_virtual_network.AzurevNet]
-}
+#   azure_vnet_name                = azurerm_virtual_network.AzurevNet.name
+#   azure_vnet_resource_group_name = azurerm_virtual_network.AzurevNet.resource_group_name
+#   azure_subnet_name              = azurerm_subnet.backend.name
+
+#   local_admin_password = azurerm_key_vault_secret.admin.value
+#   local_admin          = azurerm_key_vault_secret.admin.name
+
+#   AD_joinuser           = azurerm_key_vault_secret.admin.value
+#   AD_joinpassword       = azurerm_key_vault_secret.admin.name
+#   AD_domain             = var.ad_domain_fqdn
+
+#   depends_on = [azurerm_virtual_network.AzurevNet]
+# }
 
 module "HorizonC" {
   count    = local.delivery_solutions[var.delivery] == "horizonc" ? 1 : 0
