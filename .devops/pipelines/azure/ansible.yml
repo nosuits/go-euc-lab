@@ -53,6 +53,8 @@ jobs:
         pip install --upgrade requests==2.20.1
         pip install --upgrade azure-mgmt-monitor==0.5.2
         apt-get -y install zip
+
+        ansible-galaxy collection install azure.azcollection --force
       displayName: 'Python pip upgrade'
 
     - task: TerraformInstaller@0
