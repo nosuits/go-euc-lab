@@ -49,7 +49,8 @@ jobs:
     displayName: Configure infrastructure
     steps:
     - script: |
-        pip install 'ansible[azure]'
+        pip install -r https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
+        
         pip install --upgrade requests==2.20.1
         pip install --upgrade azure-mgmt-monitor==0.5.2
         apt-get -y install zip
