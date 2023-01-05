@@ -20,9 +20,10 @@ module "domain_controller" {
   vsphere_user     = var.vsphere_user
   vsphere_password = var.vsphere_password
 
-  vm_name               = "dc"
+  vm_name               = "go-dc"
+  vm_count              = 1
   vm_cpu                = 4
-  vm_memory             = 2048
+  vm_memory             = 4096
   local_admin_password  = var.local_admin_password
   domain                = var.domain_fqdn
   domain_admin          = var.domain_admin
@@ -50,7 +51,8 @@ module "management_server" {
   vsphere_user     = var.vsphere_user
   vsphere_password = var.vsphere_password
 
-  vm_name   = "mngt"
+  vm_name   = "go-mngt"
+  vm_count  = 1
   vm_cpu    = 4
   vm_memory = 4096
   vm_disks = [{
@@ -90,7 +92,8 @@ module "sql_server" {
   vsphere_user     = var.vsphere_user
   vsphere_password = var.vsphere_password
 
-  vm_name   = "sql"
+  vm_name   = "go-sql"
+  vm_count  = 1
   vm_cpu    = 4
   vm_memory = 4096
   vm_disks = [{
@@ -132,9 +135,10 @@ module "citrix_delivery_controller" {
   vsphere_password = var.vsphere_password
 
   source    = "./modules/vmware.vsphere.vm.windows"
-  vm_name   = "ctxddc"
+  vm_name   = "go-ctxddc"
+  vm_count  = 1
   vm_cpu    = 2
-  vm_memory = 2048
+  vm_memory = 4096
   vm_disks = [{
     unit_number = 0
     label       = "disk0"
@@ -165,9 +169,10 @@ module "citrix_storefront" {
   vsphere_password = var.vsphere_password
 
   source    = "./modules/vmware.vsphere.vm.windows"
-  vm_name   = "ctxsf"
+  vm_name   = "go-ctxsf"
+  vm_count  = 1
   vm_cpu    = 2
-  vm_memory = 2048
+  vm_memory = 4096
   vm_disks = [{
     unit_number = 0
     label       = "disk0"
@@ -198,9 +203,10 @@ module "citrix_license_server" {
   vsphere_password = var.vsphere_password
 
   source    = "./modules/vmware.vsphere.vm.windows"
-  vm_name   = "ctxlic"
+  vm_name   = "go-ctxlic"
+  vm_count  = 1
   vm_cpu    = 2
-  vm_memory = 2048
+  vm_memory = 4096
   vm_disks = [{
     unit_number = 0
     label       = "disk0"
@@ -231,9 +237,9 @@ module "vmware_connection_server" {
   vsphere_password = var.vsphere_password
 
   vm_count  = 1
-  vm_name   = "vcs"
+  vm_name   = "go-vcs"
   vm_cpu    = 4
-  vm_memory = 2048
+  vm_memory = 4096
   vm_disks = [{
     unit_number = 0
     label       = "disk0"
@@ -248,22 +254,22 @@ module "vmware_connection_server" {
   virtual_network_portgroup_name = var.vsphere_nic
 
   vsphere_datacenter      = var.vsphere_datacenter
-  vsphere_datastore       = "datastore2"
+  vsphere_datastore       = var.vsphere_datastore
   vsphere_cluster         = var.vsphere_cluster
   vsphere_source_template = var.vsphere_source_template_windows
 }
 
-module "Bots" {
+module "bots" {
   source    = "./modules/vmware.vsphere.vm.windows"
 
   vsphere_server   = var.vsphere_server
   vsphere_user     = var.vsphere_user
   vsphere_password = var.vsphere_password
 
-  vm_count  = 2
-  vm_name   = "bot"
+  vm_count  = 32 # default
+  vm_name   = "go-bot"
   vm_cpu    = 4
-  vm_memory = 2048
+  vm_memory = 4096
   vm_disks = [{
     unit_number = 0
     label       = "disk0"
@@ -278,7 +284,7 @@ module "Bots" {
   virtual_network_portgroup_name = var.vsphere_nic
 
   vsphere_datacenter      = var.vsphere_datacenter
-  vsphere_datastore       = "datastore2"
+  vsphere_datastore       = var.vsphere_datastore
   vsphere_cluster         = var.vsphere_cluster
   vsphere_source_template = var.vsphere_source_template_windows
 }
