@@ -22,3 +22,4 @@ terraform.rc
 **/outputs.tf
 packer/vmware/vsphere.pckvars.hcl
 terraform/vmware/infra/outputs.tf
+terraform/vmware/infra/outputs.tf
