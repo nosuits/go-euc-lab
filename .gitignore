@@ -22,4 +22,3 @@ terraform.rc
 
 /manifests/*.json
 
-packer/vmware/vsphere.pckvars.hcl
