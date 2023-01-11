@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Microsoft Windows 11 variables using the Packer Builder for VMware vSphere (vsphere-iso).
+    Microsoft Windows 10 variables using the Packer Builder for VMware vSphere (vsphere-iso).
 */
 
 //  BLOCK: variable
@@ -119,7 +119,7 @@ variable "vm_guest_os_name" {
 variable "vm_guest_os_version" {
   type        = string
   description = "The guest operating system version. Used for naming. (e.g. '10')"
-  default     = "11"
+  default     = "10"
 }
 
 variable "vm_guest_os_edition" {
@@ -149,7 +149,7 @@ variable "vm_cdrom_type" {
 variable "vm_cpu_count" {
   type        = number
   description = "The number of virtual CPUs. (e.g. '2')"
-  default     = 4
+  default     = 2
 }
 
 variable "vm_cpu_cores" {
@@ -174,12 +174,6 @@ variable "vm_mem_hot_add" {
   type        = bool
   description = "Enable hot add memory."
   default     = true
-}
-
-variable "vm_vtpm" {
-  type        = bool
-  description = "Enable virtual trusted platform module (vTPM)."
-  default     = false
 }
 
 variable "vm_disk_size" {
@@ -459,3 +453,4 @@ variable "network_dns" {
   type        = number
   description = "Default network DNS address, example: 1, will be 10.2.0.1"
 }
+

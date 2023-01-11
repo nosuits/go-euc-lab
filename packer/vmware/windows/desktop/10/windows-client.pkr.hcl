@@ -1,34 +1,33 @@
 /*
     DESCRIPTION:
-    Microsoft Windows Server 2022 template using the Packer Builder for VMware vSphere (vsphere-iso).
+    Microsoft Windows 10 template using the Packer Builder for VMware vSphere (vsphere-iso).
 */
 
 //  BLOCK: packer
 //  The Packer configuration.
 
 packer {
-  required_version = ">= 1.8.0"
+  required_version = ">= 1.8.5"
   required_plugins {
+    git = {
+      version = ">= 0.3.2"
+      source  = "github.com/ethanmdavidson/git"
+    }
     vsphere = {
-      version = ">= v1.0.3"
+      version = ">= v1.1.1"
       source  = "github.com/hashicorp/vsphere"
     }
-  }
-  
-  required_plugins {
     windows-update = {
-      version = ">= 0.14.0"
+      version = ">= 0.14.1"
       source  = "github.com/rgl/windows-update"
     }
   }
-
-  # required_plugins {
-  #   ansible = {
-  #     version = ">= 1.0.0"
-  #     source  = "github.com/hashicorp/ansible"
-  #   }
-  # }
 }
+
+//  BLOCK: data
+//  Defines the data sources.
+
+data "git-repository" "cwd" {}
 
 //  BLOCK: locals
 //  Defines the local variables.
@@ -41,13 +40,13 @@ locals {
   iso_checksum    = "${var.iso_checksum_type}:${var.iso_checksum_value}"
   manifest_date   = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path   = "${path.cwd}/manifests/"
-  manifest_output = "${local.manifest_path}${var.vm_guest_os_family}-${var.vm_guest_os_name}-${var.vm_guest_os_version}-${var.vm_guest_os_edition_standard}.json"
+  manifest_output = "${local.manifest_path}${var.vm_guest_os_family}-${var.vm_guest_os_name}-${var.vm_guest_os_version}.json"
 }
 
 //  BLOCK: source
 //  Defines the builder configuration blocks.
 
-source "vsphere-iso" "windows-server" {
+source "vsphere-iso" "windows-desktop" {
 
   // vCenter Server Endpoint Settings and Credentials
   vcenter_server      = var.vsphere_endpoint
@@ -63,18 +62,19 @@ source "vsphere-iso" "windows-server" {
 
   // Virtual Machine Settings
   guest_os_type        = var.vm_guest_os_type
-  vm_name              = "${var.vm_guest_os_family}-${var.vm_guest_os_name}-${var.vm_guest_os_version}-${var.vm_guest_os_edition_standard}-v${local.build_version}"
+  vm_name              = "${var.vm_guest_os_family}-${var.vm_guest_os_version}-v${local.build_version}"
   firmware             = var.vm_firmware
-  CPUs                 = var.vm_cpu_sockets
+  CPUs                 = var.vm_cpu_count
   cpu_cores            = var.vm_cpu_cores
   CPU_hot_plug         = var.vm_cpu_hot_add
   RAM                  = var.vm_mem_size
   RAM_hot_plug         = var.vm_mem_hot_add
+  video_ram            = var.vm_video_mem_size
+  displays             = var.vm_video_displays
   cdrom_type           = var.vm_cdrom_type
   disk_controller_type = var.vm_disk_controller_type
   storage {
     disk_size             = var.vm_disk_size
-    disk_controller_index = 0
     disk_thin_provisioned = var.vm_disk_thin_provisioned
   }
   network_adapters {
@@ -93,14 +93,14 @@ source "vsphere-iso" "windows-server" {
     "${path.cwd}/packer/vmware/scripts/${var.vm_guest_os_family}/"
   ]
   cd_content = {
-    "autounattend.xml" = templatefile("data/autounattend.pkrtpl.hcl", {
+    "autounattend.xml" = templatefile("${abspath(path.root)}/data/autounattend.pkrtpl.hcl", {
       build_username       = var.build_username
       build_password       = var.build_password
       build_organization   = var.build_organization
       vm_inst_os_language  = var.vm_inst_os_language
       vm_inst_os_keyboard  = var.vm_inst_os_keyboard
-      vm_inst_os_image     = var.vm_inst_os_image_standard_desktop
-      vm_inst_os_kms_key   = var.vm_inst_os_kms_key_standard
+      vm_inst_os_image     = "${var.vm_guest_os_family} ${var.vm_guest_os_version} ${var.vm_inst_os_image}"
+      vm_inst_os_kms_key   = var.vm_inst_os_kms_key
       vm_guest_os_language = var.vm_guest_os_language
       vm_guest_os_keyboard = var.vm_guest_os_keyboard
       vm_guest_os_timezone = var.vm_guest_os_timezone
@@ -146,7 +146,7 @@ source "vsphere-iso" "windows-server" {
 //  Defines the builders to run, provisioners, and post-processors.
 
 build {
-  sources = ["source.vsphere-iso.windows-server"]
+  sources = ["source.vsphere-iso.windows-desktop"]
 
   provisioner "powershell" {
     environment_vars = [
@@ -175,7 +175,6 @@ build {
     ]
     restart_timeout = "120m"
   }
-
   post-processor "manifest" {
     output     = local.manifest_output
     strip_path = true
@@ -187,7 +186,7 @@ build {
       common_data_source       = var.common_data_source
       common_vm_version        = var.common_vm_version
       vm_cpu_cores             = var.vm_cpu_cores
-      vm_cpu_count             = var.vm_cpu_sockets
+      vm_cpu_count             = var.vm_cpu_count
       vm_disk_size             = var.vm_disk_size
       vm_disk_thin_provisioned = var.vm_disk_thin_provisioned
       vm_firmware              = var.vm_firmware

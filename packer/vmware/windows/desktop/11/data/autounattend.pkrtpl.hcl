@@ -105,6 +105,13 @@
             </ProductKey>
          </UserData>
          <EnableFirewall>false</EnableFirewall>
+         <RunSynchronous>
+            <RunSynchronousCommand wcm:action="add">
+               <Order>1</Order>
+               <Description>Remove requirement for TPM 2.0</Description>
+               <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+            </RunSynchronousCommand>
+         </RunSynchronous>
       </component>
    </settings>
    <settings pass="offlineServicing">
@@ -118,6 +125,15 @@
       </component>
    </settings>
    <settings pass="specialize">
+      <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+         <RunSynchronous>
+            <RunSynchronousCommand wcm:action="add">
+               <Order>1</Order>
+               <Description>Remove requirement for an online Microsoft account</Description>
+               <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t REG_DWORD /d 1 /f</Path>
+            </RunSynchronousCommand>
+         </RunSynchronous>
+      </component>
       <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
          <OEMInformation>
             <HelpCustomized>false</HelpCustomized>
@@ -136,6 +152,13 @@
       </component>
    </settings>
    <settings pass="oobeSystem">
+      <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <InputLocale>${vm_guest_os_keyboard}</InputLocale>
+         <SystemLocale>${vm_guest_os_language}</SystemLocale>
+         <UILanguage>${vm_guest_os_language}</UILanguage>
+         <UILanguageFallback>${vm_guest_os_language}</UILanguageFallback>
+         <UserLocale>${vm_guest_os_language}</UserLocale>
+      </component>
       <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
          <AutoLogon>
             <Password>
@@ -174,25 +197,35 @@
          </UserAccounts>
          <FirstLogonCommands>
             <SynchronousCommand wcm:action="add">
+               <CommandLine>cmd.exe /c netsh interface ip set address "Ethernet0" static ${network_address} ${network_subnet} ${network_gateway}</CommandLine>
+               <Description>Assign IP</Description>
+               <Order>1</Order>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+               <CommandLine>cmd.exe /c netsh interface ip add dns "Ethernet0" ${network_dns} </CommandLine>
+               <Description>Assign DNS</Description>
+               <Order>2</Order>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
                <CommandLine>%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
                <Description>Set Execution Policy 64-Bit</Description>
-               <Order>1</Order>
+               <Order>3</Order>
                <RequiresUserInput>true</RequiresUserInput>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
                <CommandLine>%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
                <Description>Set Execution Policy 32-Bit</Description>
-               <Order>2</Order>
+               <Order>4</Order>
                <RequiresUserInput>true</RequiresUserInput>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
                <CommandLine>%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -File F:\windows-vmtools.ps1</CommandLine>
-               <Order>3</Order>
+               <Order>5</Order>
                <Description>Install VMware Tools</Description>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
                <CommandLine>%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -File F:\windows-init.ps1</CommandLine>
-               <Order>4</Order>
+               <Order>6</Order>
                <Description>Initial Configuration</Description>
             </SynchronousCommand>
          </FirstLogonCommands>

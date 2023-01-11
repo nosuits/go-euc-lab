@@ -19,7 +19,6 @@ terraform.rc
 
 # Packer ignore
 *.pkrvars.hcl
-**/outputs.tf
-packer/vmware/vsphere.pckvars.hcl
-terraform/vmware/infra/outputs.tf
-terraform/vmware/infra/outputs.tf
+
+/manifests/*.json
+
